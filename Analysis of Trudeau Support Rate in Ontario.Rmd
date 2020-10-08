@@ -15,8 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ## install.packages('float')
-## install.packages('tidyverse')
-## install.packages('ggplot2')
 library(float)
 library(tidyverse)
 library(ggplot2)
@@ -29,16 +27,15 @@ library(ggplot2)
 
 As the election is coming, we, Petit Poll has been asked by the Conservative Party to do a survey about the support rate for Trudeau in different areas in Ontario. So that the Party can have a brief idea about how and where to improve to increase the odds for the upcoming general election. Therefore, we did a survey in some cities with relatively large population in the Ontario Province. The survey contains six terms, including gender, age, education level, city, supporting Party and the satisfaction rate for Justin Trudeau. Based on the result of our survey, a brief analysis about the relationship between various factors and the support rate is created. 
 
+For the purpose of our survey, we are interested in the support rate of Justin Trudeau by people in different cities. We found out that most of the people are dissatisfied about Justin Trudeau. We found out that the people in different cities have basically the same views on Justin Trudeau's performance. Also we notice that people from different education backgrounds and different political party preferences also follow the same trend on Justin Trudeau's performance. The feedback we got from this is that regardless the cities, the education levels and the political preferences, all of data show the same trend of Justin Trudeau's performance which is dissatisfied about Justin Trudeau. This is very important for our client, the Conservative Party. This investigation helps our client to understand the popularity of Justin Trudeau and his party, the Liberal Party. More importantly, this results can be crucial for the Consevative Party to debate with Justin Trudeau and question the performance of the Liberal Party.
+
+The main weaknesses in our survey are "Response error" and "Non-response problem". In the future work, we can try to implement more incentive method to attract participants and decrease the non-response rate as much as possible. More people participate in our survey will grant us the better accuracy result.
 
 
 
 # Introduction
 
-After receiving the order from our client, we decided to start the survey with the following steps. First of all, we need to identify our target survey group. The group must be representative of the current situation. Secondly, we need to design our questionnaire, which both includes the important information and is not considered as containing leading concepts. Next, after conducting the survey, we will use appropriate methodology to analyze the trend and present our results. 
-
-For the purpose of our survey, we are interested in the support rate of Justin Trudeau by people in different cities. We found out that most of the people are dissatisfied about Justin Trudeau. We found out that the people in different cities have basically the same views on Justin Trudeau's performance. Also we notice that people from different education backgrounds and different political party preferences also follow the same trend on Justin Trudeau's performance. The feedback we got from this is that regardless the cities, the education levels and the political preferences, all of data show the same trend of Justin Trudeau's performance which is dissatified about Justin Trudeau.
-
-The main weaknesses in our survey are "Response error" and "Non-response problem". In the future work, we can try to implement more incentive method to attract participants and decrease the non-response rate as much as possible. More people participate in our survey will grant us the better accuracy result.
+After receiving the order from our client, we decided to conduct the survey with the following steps. First of all, we need to identify our target survey group. The group must be representative of the current situation. Secondly, we need to design our questionnaire, which both includes the important information and is not considered as containing leading concepts. Next, after conducting the survey, we will use appropriate methodology to analyze the trend and present our results. What we aiming for is the performance of the prime minister Justin Trudeau and his party, the Liberal Party.
 
 Link to GitHub repo: https://github.com/UTSC-HenryCheng/Petit-Pull
 
@@ -415,6 +412,11 @@ Very Satisfied
   2016.
 - Bociurkiw, O. (2020, July 18). How Trudeau's latest ethics scandal could spell the end of his    career. Retrieved October 08, 2020, from
   https://www.cnn.com/2020/07/17/opinions/trudeaus-ethics-scandal-pandemic-we-charity-bociurkiw/i   ndex.html
+
+
+
+
+
 
 
 
