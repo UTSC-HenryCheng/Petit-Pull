@@ -1,0 +1,403 @@
+---
+title: "Analysis of Trudeau Support Rate in Ontario"
+author: "Weizhi Guo, Ziping Liu, Henry Cheng"
+date: "10/5/2020"
+output: 
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+# Executive summary
+
+As the election is coming, we, Petit Poll has been asked by the Conservative Party to do a survey about the support rate for Trudeau in different areas in Ontario. So that the Party can have a brief idea about how and where to improve to increase the odds for the upcoming general election. Therefore, we did a survey in some cities with relatively large population in the Ontario Province. The survey contains six terms, including gender, age, education level, city, supporting Party and the satisfaction rate for Justin Trudeau. Based on the result of our survey, a brief analysis about the relationship between various factors and the support rate is created. 
+
+
+# Introduction
+
+After receiving the order from our client, we decided to start the survey with the following steps. First of all, we need to identify our target survey group. The group must be representative of the current situation. Secondly, we need to design our questionnaire, which both includes the important information and is not considered as containing leading concepts. Next, after conducting the survey, we will use appropriate methodology to analyze the trend and present our results. 
+
+For the purpose of our survey, we are interested in the support rate of Justin Trudeau by people in different cities. We found out that most of the people are dissatisfied about Justin Trudeau. We found out that the people in different cities have basically the same views on Justin Trudeau's performance. Also we notice that people from different education backgrounds and different political party preferences also follow the same trend on Justin Trudeau's performance. The feedback we got from this is that regardless the cities, the education levels and the political preferences, all of data show the same trend of Justin Trudeau's performance which is dissatisfied about Justin Trudeau.
+
+The main weaknesses in our survey are "Response error" and "Non-response problem". In the future work, we can try to implement more incentive method to attract participants and decrease the non-response rate as much as possible. More people participate in our survey will grant us the better accuracy result.
+
+Link to GitHub repo: https://github.com/UTSC-HenryCheng/Petit-Pull
+
+
+# Methodology
+The population for our investigation is all the Canadian residents that live in Ontario and are eligible to vote in the federal election. Our sampling frame is any eligible Ontario voter that has access to any sort of email contact that we are able to reach. We choose to collect survey sample by using email because we are currently under the pandemic situation. It's much more accessible and safe to reach out by sending email instead of face to face survey interview. We get access to the email contacts through the Government of Ontario. We send our online survey as Google Form along with a reminder email that encourages every sampling unit[people that been chosen to participate in our survey] to participate in our survey. Each email address can only fill our survey once as we set the limit in Google Form, so we are not going to get repetition response from every individual.
+
+In terms of sampling, we break Ontario into stratum[groups] by provinces. We choose the stratum by most populated cities in Ontario, since their votes will heavily affect the election result in Ontario. Which are Toronto, Ottawa, Mississauga, Brampton and Hamilton(Top 10 Cities of Ontario by Population, 2019). Then we use stratified random sampling to obtain our sample. More specific, we obtain our sample by randomly select sampling units[people that been chosen to participate in our survey] in our 6 chosen stratum[Toronto, Ottawa, Mississauga, Brampton and Hamilton] proportionally to their cities population. As a result, our sample is divided into 50% of Toronto, 17% of Ottawa, 13% of Mississauga, 11% of Brampton and 9% of Hamilton. We sample about 10% of the population in these 6 major cities, which is about 600000(Top 10 Cities of Ontario by Population, 2019).
+
+When we collect data from the survey participants, we don't collect their emails for record. So we can ensure their privacy are protected. In order to reduce non-response in our sample, we provide 200$ coupon code for grocery shopping[No Frills, Shoppers Drug Mart, Longo's and Walmart] to 100 randomly selected participants as incentive. Part of the non-response people will vote in the federal election. Their non-response can cause our collected sample data to be a little bit inaccurate. The other part of the non-response people will not vote in the federal election for various reasons. Since they don't participate and affect the election result, their non-response don't affect the accuracy of our collected sample data either.
+
+In this investigation, there are two major costs. First is the cost of incentive coupon code. We give out 100 sets of 200$ coupon code, in total it cost 20000 dollars. Second cost is the cost of labor, we required a team of 5 people that work on getting sample, send out email and analyze data. We expect them to work 60 hours for this investigation excluding the waiting time for responses. Their average wages are 20 dollars per hour. In terms of wages, it costs 6000 dollars in total. And consider for the other expenses, it should be around 500 dollars. In total, the cost for this investigation will be around 26500 dollars.  
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Simulate the data set
+# We assume we will get 40% response rate.
+# So the size of our data set will be 600000*40% = 240000
+set.seed(1)
+data <- tibble(
+  # We assume the survey participants are roughly about half male, half female and some 
+  # others. Since some people like to have some privacy, so there is small amount
+  # of 'prefer not to answer' been chose.
+  gender_group = sample(x = c('Male', 'Female', 'Others', 'Prefer not to answer'),
+                          size = 240000, replace = TRUE, prob = c('0.48', '0.48', '0.01', '0.03')),
+  
+  # The legal voting age is 18 or above. We assume teenagers are less interested in
+  # politics. Most survey participants are concentrated in the age group of 30-50.
+  # They care more about political issue. And they are also easy to reach, and
+  # participate in our survey.
+  age_group = sample(x = c('18-30', '30-40', '40-50', '50-60', '60 plus'), size = 240000,
+                     replace = TRUE, prob = c('0.15', '0.3', '0.25', '0.2', '0.1')),
+  
+  # From the age group, we already assumed most participants are in the age range of 30-50,
+  # therefore we can say most of the participants already completed college or University.
+  education = sample(x = c('High school', 'College', 'Bachelor degree or higher', 'Others'),
+                     size = 240000, replace = TRUE, prob = c('0.03', '0.45', '0.5', '0.02')),
+  
+  # We spike the probabilities because we are using stratified sampling method.
+  # The probability of each city is according to their population 
+  # weight (Top 10 Cities of Ontario by Population, 2019).
+  city = sample(x = c('Toronto', 'Ottawa', 'Mississauga', 'Brampton', 'Hamilton'),
+                size = 240000, replace = TRUE, prob = c('0.5', '0.17', '0.13', '0.11', '0.09')),
+  
+  # We assume most of the participants are likely to vote for the Liberal Party and
+  # the Conservative Party.
+  party = sample(x = c('Liberal', 'Conservative', 'New Democratic', 'Bloc Quebecois',
+                       'Green', 'People'), size = 240000, replace = TRUE, prob = c('0.4', '0.4', '0.1', '0.08', '0.015', '0.005')),
+  
+  # We assume most of the participants are unhappy about Justin Trudeau due to
+  # the WE Charity scandal
+  rate_trudeau = sample(x = c('Very dissatisfied', 'Dissatisfied',
+                              'Neutral', 'Satisfied', 'Very satisfied'), size = 240000,
+                        replace = TRUE, prob = c('0.09', '0.35', '0.3', '0.2', '0.06'))
+)
+```
+
+
+# Results
+We received 40% responses from our sample, which is 240000 participants.
+
+
+## Table
+This is the data summary of our survey data set
+
+What is your gender?
+```{r, echo=FALSE}
+table1 <- table(data$gender_group)
+round(prop.table(table1), 3)
+```
+How old are you?
+```{r, echo=FALSE}
+table2 <- table(data$age_group)
+round(prop.table(table2), 3)
+```
+What is your education level?
+```{r, echo=FALSE}
+table3 <- table(data$education)
+round(prop.table(table3), 3)
+```
+Which city are you coming from?
+```{r, echo=FALSE}
+table4 <- table(data$city)
+round(prop.table(table4), 3)
+```
+Which party do you support?
+```{r, echo=FALSE}
+table5 <- table(data$party)
+round(prop.table(table5), 3)
+```
+What do you feel about the performance of Prime Minister Justin Pierre Trudeau?
+```{r, echo=FALSE}
+table6 <- table(data$rate_trudeau)
+round(prop.table(table6), 3)
+```
+
+
+## Graphs
+
+Most people answered their gender truthfully, but we found that a small number of people did not want to answer this question from Figure 1. They perhaps want to protect their privacy.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="What is your gender?"}
+# bar chart of gender group of participants
+data %>% 
+  select(gender_group) %>% 
+  ggplot(aes(x =  gender_group)) + 
+  geom_bar() +
+  labs(x = 'Gender Group',
+       y = 'Participants',
+       title = 'What is your gender?',
+       caption = "Source: Simulated dataset.") +
+  geom_text(aes(label = stat(count)), stat = 'count', vjust = 0)
+```
+
+
+According to the Figure 2, we found out that the 30-40 age group has the largest proportion of the likelihood to vote, and the second most is the 40-50 age group. The least proportion is 60 plus age group, which is probably many elderly people that unfamiliar with online survey or don't have a Google account for us to contact.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="How old are you?"}
+# bar chart of age group of participants
+data %>% 
+  select(age_group) %>% 
+  ggplot(aes(x =  age_group)) + 
+  geom_bar() +
+  labs(x = 'Age Group',
+       y = 'Participants',
+       title = 'How old are you?',
+       caption = "Source: Simulated dataset.") + 
+  geom_text(aes(label = stat(count)), stat = 'count', vjust = 0)
+```
+
+
+In Figure 3, we found out that most of voter have an education level above college. People with high school education only accounts for a small part. It's due to most of high school student are not 18 or older, so they are not eligible for voting.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="What is your education level?"}
+# bar chart of eduction levels of participants
+data %>% 
+  select(education) %>% 
+  ggplot(aes(x =  education)) + 
+  geom_bar() +
+  labs(x = 'Education',
+       y = 'Participants',
+       title = 'What is your education level?',
+       caption = "Source: Simulated dataset.") +
+  geom_text(aes(label = stat(count)), stat = 'count', vjust = 0)
+```
+
+
+In Figure 4, obviously there are much more people in Toronto, so it has the most participants for our survey. Cities with larger populations will have larger impact in the result of federal election. We can see how influential is Toronto among these top populated cities in Ontario.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Which city are you coming from?"}
+# bar chart of cities that participants are coming from
+data %>% 
+  select(city) %>% 
+  ggplot(aes(x =  city)) + 
+  geom_bar() +
+  labs(x = 'Cities',
+       y = 'Participants',
+       title = 'Which city are you coming from?',
+       caption = "Source: Simulated dataset.") +
+  geom_text(aes(label = stat(count)), stat = 'count', vjust = 0)
+```
+
+
+The Conservative and Liberal parties are the two major political parties in Canada. According to Figure 5, unsurprisingly most of participants chose the Conservative and Liberal parties. The Conservative Party only has very little advantage than The Liberal Party. Compared with these two parties, the other four parties have significantly fewer supporters.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Which party do you support?"}
+# bar chart of parties that supported by participants
+data %>% 
+  select(party) %>% 
+  ggplot(aes(x =  party)) + 
+  geom_bar() +
+  labs(x = 'Parties',
+       y = 'Participants',
+       title = 'Which party do you support?',
+       caption = "Source: Simulated dataset.") +
+  geom_text(aes(label = stat(count)), stat = 'count', vjust = 0)
+```
+
+
+Figure 6 mainly shows people’s perceptions about the prime minister Justin Trudeau. From the figure, we can see that about 30% of people maintain a neutral attitude, but about 35% of people are dissatisfied with Justin Trudeau. This may be related to the scandal about WE Charity and Justin Trudeau family. Only very little proportion of the participants are very satisfied about Justin Trudeau performance.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="What do you think about the performance of Prime Minister Justin Pierre Trudeau?"}
+# bar chart of participants' perception on Justin Trudeau's performance
+data %>% 
+  select(rate_trudeau) %>% 
+  ggplot(aes(x =  rate_trudeau)) + 
+  geom_bar() +
+  labs(x = 'Justin Trudeau Performance',
+       y = 'Participants',
+       title = 'What do you feel about the performance of Prime Minister Justin Pierre Trudeau?',
+       caption = "Source: Simulated dataset.") +
+  geom_text(aes(label = stat(count)), stat = 'count', vjust = 0)
+```
+
+
+
+
+To determine if the support rate for Justin Trudeau is the same in each city. A side-by-side bar chart is created. From the Figure 7, we can see the pattern is almost the same in different cities. The only difference is the number of people surveyed in each city. From this, we can reflect that voters are not satisfied with Justin Trudeau's performance. And it's not differ from city to city.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Support Rate for Different Cities"} 
+# side by side bar chart to see the pattern for support rate in each area
+ggplot(data, aes(x = city, fill = rate_trudeau)) + 
+  geom_bar(position=position_dodge()) +
+  labs(x = 'City',
+       y = 'Participants',
+       title = 'Justin Trudeau Support Rate for Different Citites',
+       caption = "Source: Simulated dataset.")
+```
+
+
+Another concern for the support rate is that we suspect the rate is related with the education level. Based on our results from Figure 8, we found out that it is not the case. The different education level have the same opinion for Trudeau. On the other hand, the graph also shows that most of the people in Ontario has a high education level.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Support Rate for Different Education Level"}
+# side by side bar chart to see the pattern for support rate in each education level
+ggplot(data, aes(x = education, fill = rate_trudeau)) + 
+  geom_bar(position=position_dodge()) +
+  labs(x = 'Education',
+       y = 'Participants',
+       title = 'Justin Trudeau Support Rate for Different Education Level',
+       caption = "Source: Simulated dataset.")
+```
+
+
+According to Figure 9, unsurprisingly we still see the same trend of most people are dissatisfied about Justin Trudeau's performance regardless which party they will likely to vote for. However, it is very unusual to see that most of the Liberal Party supporters also are dissatisfied about Justin Trudeau.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap="Justin Trudeau Support Rate for Different Parties"}
+# side by side bar chart to see the pattern for support rate in each party
+ggplot(data, aes(x = party, fill = rate_trudeau)) + 
+  geom_bar(position=position_dodge()) +
+  labs(x = 'Party',
+       y = 'Participants',
+       title = 'Justin Trudeau Support Rate for Different Parties',
+       caption = "Source: Simulated dataset.")
+```
+
+
+# Discussion 
+
+## Survey
+
+The survey process that we designed could become more detailed, if more budget is invested or more people can be recruited. The limitation of the time and cost restricted our survey. We were only able to carry out the research in some big cities. There might be some small cities that holds a different view than these five cities we surveyed. Also, the survey could contains more detailed rate standard. For example, we can use a 1-10 numbered rating standard or we can let people specifically rate some certain aspects for his work, like the welfare for people, the contribution to Canada's economy, and etc. 
+
+## Results
+
+The general results that we got is that the support rate for Trudeau is irrelevant with the cities, the educations and the political preferences. It is almost consistent in every city in Ontario regardless of their background. This is reasonable, since the scandal about WE Charity and Justin Trudeau family (more information access https://www.cnn.com/2020/07/17/opinions/trudeaus-ethics-scandal-pandemic-we-charity-bociurkiw/index.html) significantly reduces people's trust and confidence about Justin Trudeau especially in this crucial pandemic situation. More importantly, even the Liberal Party supporters are disappointed about his performance. This shocking result can be a very effective news headline to strike Justin Trudeau's position. Also, this can be a very good opportunity for the Conservative Party to gain trust from the Liberal Party supporters. 
+
+## Weaknesses and areas for future
+
+In our survey, the main errors are "Response error" and "Non-response problem". For response error, some people may not truthfully express themselves. The reason may varies. It can be there isn't any desired answer in the options or they haven't made up their minds. Some of them may choose the option neutral in this situation and refuse to provide thoughtful feedback to our survey. As a result, those participants' voting choices will be uncertainty. Also, some of the participants are possibly aiming for 200 dollars coupon. They probably don't care much about the survey and provide us some fake responses. These also will cause some uncertainty and untruthfulness in our sample date set. Another error is the non-response problem. Some people received the questionnaire, but they did not participate in this survey. Which may skew our survey data set to the preferences of those who participated in this survey. The participants involved in this survey may not be broad enough to be representative. Not only caused the losses of sample data to a certain extent, but also affected the results of the survey.
+For future studies, we can try to be more specific about the rating for various aspects of Trudeau's work. And to determine the winning odds for Conservative party, we can also survey about the questions related to the opinions for Conservative Party, and hence can better advise our clients on what what they need to improve. In the regard of lowering our errors, we should improve our methods on attracting participants.
+
+# Appendices
+
+## Collected Data
+```{r, echo=FALSE}
+head(data, 20)
+```
+
+## Survey
+
+Our survey as Google Form in the link below:
+
+https://docs.google.com/forms/d/1NyxAXg5HvC4uhP6B1XJTa66zB8rprv9d0TsfcKTt5lE/edit
+
+Survey Questions: 
+
+1.What is your gender?
+
+Male
+
+Female
+
+Others
+
+Prefer not to answer
+
+
+2.How old are you?
+
+18-30
+
+30-40
+
+40-50
+
+50-60
+
+60 plus
+
+
+3.What is your education level?
+
+High school
+
+College
+
+Bachelor's degree or higher
+
+Others
+
+
+4.Which city are you coming from?
+
+Toronto
+
+Ottawa
+
+Mississauga
+
+Brampton
+
+Hamilton
+
+
+5.Which party do you support?
+
+Liberal
+
+Conservative
+
+New Democratic
+
+Bloc Quebecois
+
+Green
+
+People
+
+
+6.What do you feel about the performance of Prime Minister Justin Pierre Trudeau?
+
+Very Dissatisfied
+
+Dissatisfied
+
+Neutral
+
+Satisfied
+
+Very Satisfied
+
+
+
+
+# References
+
+- Top 10 Cities of Ontario by Population. (2019, July 01). Retrieved October 06, 2020, from        http://www.top10cities.net/country/canada-ontario-admin.php
+- R Core Team (2020). R: A language and environment for statistical computing. R
+  Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+- JJ Allaire and Yihui Xie and Jonathan McPherson and Javier Luraschi and Kevin Ushey
+  and Aron Atkins and Hadley Wickham and Joe Cheng and Winston Chang and Richard Iannone
+  (2020). rmarkdown: Dynamic Documents for R. R package version 2.3. URL
+  https://rmarkdown.rstudio.com.
+- Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software,
+  4(43), 1686, https://doi.org/10.21105/joss.01686
+- H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York,
+  2016.
+- Bociurkiw, O. (2020, July 18). How Trudeau's latest ethics scandal could spell the end of his    career. Retrieved October 08, 2020, from
+  https://www.cnn.com/2020/07/17/opinions/trudeaus-ethics-scandal-pandemic-we-charity-bociurkiw/i   ndex.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
